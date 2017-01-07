@@ -6,6 +6,7 @@ import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.collections.bson.BSONCollection
 import reactivemongo.api.{DefaultDB, MongoConnection, MongoDriver, QueryOpts}
 import reactivemongo.bson._
+import scala.util.matching._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -31,7 +32,7 @@ class SuggestionsService @Inject()(val reactiveMongoApi:ReactiveMongoApi) {
   **/
 
   def search(text: String): Future[List[Suggestions]] =     suggestionCollection.flatMap(_.find(
-    document("data" -> document("$regex" -> String.format("^%s.*",text),"$options"->"i"))).sort(document("data"->1)).options(QueryOpts().batchSize(5)).
+    document("data" -> document("$regex" -> String.format("^%s.*",Regex.quote(text)),"$options"->"i"))).sort(document("data"->1)).options(QueryOpts().batchSize(5)).
     cursor[Suggestions]().collect[List](5))// use personWriter
 
 
