@@ -1,0 +1,7 @@
+logs
+target
+project/target
+.sbtserver
+.idea
+node_modules
+.DS_Store
