@@ -274,7 +274,7 @@
         const setSuggestions = (value,component) => {
             console.log(value);
             var p = this;
-            fetch('suggestions/search?query='+value).then(res => {
+            fetch('suggestions/search?query='+encodeURIComponent(value)).then(res => {
                 if(res.status >=200 && res.status <300){
                     res.json().then( s =>  {
                         component.setState({
