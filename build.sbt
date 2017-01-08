@@ -12,7 +12,8 @@ libraryDependencies ++= Seq(
   ws,
   "org.reactivemongo" %% "play2-reactivemongo" % "0.11.14",
   "com.typesafe.play" % "play-json_2.11" % "2.6.0-M1",
-  "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test
+  "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test,
+  "com.github.simplyscala" %% "scalatest-embedmongo" % "0.2.2" % "test"
 )
 
 
