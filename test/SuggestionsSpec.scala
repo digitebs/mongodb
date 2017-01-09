@@ -10,7 +10,7 @@ import reactivemongo.bson._
 import services.SuggestionsService
 
 import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext}
 
 /**
   * Add your spec here.
@@ -36,52 +36,53 @@ class SuggestionsSpec extends PlaySpec
 
   var suggestionsService:SuggestionsService = null
 
-  override def beforeAll() = {
+  override def beforeAll  {
     mongoProps = mongoStart(27017, Version.V2_7_1) // by default port = 12345 & version = Version.2.3.0
     val api = app.injector.instanceOf[ReactiveMongoApi]
     suggestionsService = app.injector.instanceOf[SuggestionsService]
-    val suggestionCollection: Future[BSONCollection] = api.database.map(_.collection("suggestions"))
-    val sync =Await.result(suggestionCollection, 10 seconds)
+
+    val collection:BSONCollection =Await.result(api.database.map(_.collection("suggestions")), 10 seconds)
       // m.create()
-    sync.insert(document("data" -> "a"))
-    sync.insert(document("data" -> "ab"))
-    sync.insert(document("data" -> "acc"))
-    sync.insert(document("data" -> "accc"))
-    sync.insert(document("data" -> "acdef"))
+    collection.insert(document("data" -> "a"))
+    collection.insert(document("data" -> "ab"))
+    collection.insert(document("data" -> "acc"))
+    collection.insert(document("data" -> "accc"))
+    collection.insert(document("data" -> "acdef"))
   } // add your own port & version parameters in mongoStart method if you need it
 
-  override def afterAll() = {
+  override def afterAll {
     mongoStop(mongoProps)
   }
 
-  "search text" when {
+  val suggest =afterWord("suggest")
 
-    "single letter" should {
-      "have length 5" in {
+  "text" when {
+    "single letter" should suggest{
+      "collection with length 5" in {
         whenReady(suggestionsService.search("a")) {
           _ must have length 5
         }
       }
     }
 
-    "empty" should {
-      "have length 5" in {
+    "empty" should suggest{
+      "collection with length 5" in {
         whenReady(suggestionsService.search("")) {
           _ must have length 5
         }
       }
     }
 
-    "two letter" should {
-      "have single result" in {
+    "followed by another letter" should suggest{
+      "single result" in {
         whenReady(suggestionsService.search("ab")) {
           _ must have length 1
         }
       }
     }
 
-    "mix with regex" should {
-      "return empty" in {
+    "mix with regex" should suggest{
+      "empty result" in {
         whenReady(suggestionsService.search("a.*")) {
           _ must have length 0
         }
